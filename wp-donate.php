@@ -62,7 +62,7 @@ add_shortcode('donation_form', 'wp_donate_form');
 
 function wp_donate_response()
 {
-    echo $_SESSION["donate_msg"];
+    return $_SESSION["donate_msg"];
 }
 
 add_shortcode('donate_response', 'wp_donate_response');
