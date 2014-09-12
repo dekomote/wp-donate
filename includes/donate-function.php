@@ -1,77 +1,41 @@
 <?php
-function authorizepayment($METHOD_TO_USE,$REQUEST,$address1='',$city='',$state='',$country='',$zip='',$email='',$paypalprice)
+function authorizepayment($REQUEST)
 {
 	if (!checkCreditCard($REQUEST['x_card_num'], $REQUEST['card_type'], $ccerror, $ccerrortext))
 	{
-		$_SESSION['donate_msg'] = 'Please enter a valid '.$REQUEST['x_card_num'].' number.';
+		$_SESSION['donate_msg'] = 'Please enter a valid credit card number.';
 		return false;
 	}
 	else
 	{
-		if ($METHOD_TO_USE == "AIM")
+		$transaction = new AuthorizeNetAIM;
+		$transaction->setSandbox(AUTHORIZENET_SANDBOX);
+		$transaction->setFields(
+			array(
+			'amount' => $REQUEST['amount'],
+			'card_num' => $REQUEST['x_card_num'],
+			'exp_date' => $REQUEST['exp_month'].'/'.$REQUEST['exp_year'],
+			'first_name' => $REQUEST['first_name'],
+			'last_name' => $REQUEST['last_name'],
+			'address' => $REQUEST['address'],
+			'city' => $REQUEST['city'],
+			'state' => $REQUEST['state'],
+			'country' => $REQUEST['country'],
+			'zip' => $REQUEST['zip'],
+			'email' => $REQUEST['email'],
+			)
+		);
+		$response = $transaction->authorizeAndCapture();
+		if ($response->approved)
 		{
-			$transaction = new AuthorizeNetAIM;
-			$transaction->setSandbox(AUTHORIZENET_SANDBOX);
-			$transaction->setFields(
-				array(
-				'amount' => $REQUEST['amount'],
-				'card_num' => $REQUEST['x_card_num'],
-				'exp_date' => $REQUEST['exp_month'].'/'.$REQUEST['exp_year'],
-				'first_name' => $REQUEST['first_name'],
-				'last_name' => $REQUEST['last_name'],
-				'address' => $REQUEST['address'],
-				'city' => $REQUEST['city'],
-				'state' => $REQUEST['state'],
-				'country' => $REQUEST['country'],
-				'zip' => $REQUEST['zip'],
-				'email' => $REQUEST['email'],
-				)
-			);
-			$response = $transaction->authorizeAndCapture();
-			if ($response->approved)
-			{
-				$_SESSION['donate_msg'] = $response->response_reason_text;
-				return true;
-			}
-			else
-			{
-				//echo "1";
-				$_SESSION['donate_msg'] = $response->response_reason_text;				
-			}
+			$_SESSION['donate_msg'] = $response->response_reason_text;
+			return true;
 		}
-		elseif (count($REQUEST))
+		else
 		{
-			$response = new AuthorizeNetSIM;
-			if ($response->isAuthorizeNet())
-			{
-				if ($response->approved)
-				{
-					// Transaction approved! Do your logic here.
-					// Redirect the user back to your site.
-					//$return_url = $site_root . 'thank_you_page.php?transaction_id=' .$response->transaction_id;
-					//echo "2";
-					
-					return true;
-				}
-				else
-				{
-					// There was a problem. Do your logic here.
-					// Redirect the user back to your site.
-					$_SESSION['donate_msg'] = $response->response_reason_text;
-				   // echo "3";
-					header("Location:".site_url().$_SERVER['REQUEST_URI']);
-					exit;
-		
-				}
-				echo AuthorizeNetDPM::getRelayResponseSnippet($return_url);
-			}
-			else
-			{
-				//echo "4";
-				$_SESSION['donate_msg'] =  "MD5 Hash failed. Check to make sure your MD5 Setting matches the one in";				
-			}
+			$_SESSION['donate_msg'] = $response->response_reason_text;
+			return false;
 		}
-		
 	}
 }
 
