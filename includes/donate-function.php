@@ -25,6 +25,10 @@ function authorizepayment($REQUEST)
 			'email' => $REQUEST['email'],
 			)
 		);
+		$transaction->setCustomField("Donation Form", $REQUEST["form_id"]);
+		$transaction->setCustomField("Donation Type", $REQUEST["donation_type"]);
+		$transaction->addLineItem("Donation", "Donation to '".get_bloginfo("name")."'", "Donation to '".get_bloginfo("name")."' using the form: ".$REQUEST["form_id"], 1, $REQUEST['amount'], false);
+		
 		$response = $transaction->authorizeAndCapture();
 		if ($response->approved)
 		{
