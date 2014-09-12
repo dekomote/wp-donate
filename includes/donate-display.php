@@ -89,7 +89,7 @@ if(isset($_POST['action']))
 
 function wp_donate_form($atts, $content = null) {
 	$attribs = shortcode_atts( array(
-        'form_id' => "Form at url: ".$_SERVER['REQUEST_URI'],
+        'form_id' => "Donate Form at: ".get_site_url().$_SERVER['REQUEST_URI'],
     ), $atts );
 	global $wpdb;
 
