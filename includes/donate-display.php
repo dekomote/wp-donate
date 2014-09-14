@@ -483,6 +483,7 @@ function wp_donate_form($atts, $content = null) {
 					if($the_query->have_posts()){
 						echo '<tr><td class="title_cell">Donation Type</td><td class="field_cell">';
 						echo '<select name="donation_type">';
+						echo '<option value="Custom" data-amount="0">Custom</option>';
 						while($the_query -> have_posts()): $the_query -> the_post();?>
 							<option value="<?php echo the_title();?>" data-amount="<?php echo get_post_meta(get_the_ID(), "amount", true)?>"><?php echo the_title();?></option>
 						<?php endwhile; ?>
@@ -491,7 +492,10 @@ function wp_donate_form($atts, $content = null) {
 							jQuery(document).ready(function(){
 								jQuery("form.wpd_donate_form select[name=donation_type]").change(function(){
 									var that = this;
-									jQuery(this).parents("form.wpd_donate_form").find("input[name=amount]").attr("readonly", "readonly").val(jQuery(that).find("option:selected").data("amount"));
+									jQuery(that).parents("form.wpd_donate_form").find("input[name=amount]").attr("readonly", "readonly").val(jQuery(that).find("option:selected").data("amount"));
+									if(jQuery(that).val() == "Custom"){
+										jQuery(that).parents("form.wpd_donate_form").find("input[name=amount]").attr("readonly", false);
+									}
 								}).change();
 							});
 						</script>
@@ -499,9 +503,9 @@ function wp_donate_form($atts, $content = null) {
 					}
 				?>
 				<tr>
-					<td class="title_cell" valign="top">Amount</td>
+					<td class="title_cell" valign="top">Amount <span style="float:right">$</span></td>
 					<td id="amount_container">
-						<input type="text" class="inputbox" name="amount" value=""/> in US Dollars
+						<input type="text" class="inputbox" name="amount" value=""/>
 					</td>
 				</tr>		
 				<tr id="tr_card_type">
@@ -574,7 +578,7 @@ function wp_donate_form($atts, $content = null) {
 				function checkData() {
 					var form = document.wpd_donate_form;
 					var minimumAmount = 1 ;
-					var maximumAmount = 10000 ;
+					var maximumAmount = 100000 ;
 								
 					if (form.first_name.value == '') {
 						alert("Please enter your first name");
