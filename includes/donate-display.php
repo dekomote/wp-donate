@@ -479,14 +479,14 @@ function wp_donate_form($atts, $content = null) {
 					<td colspan="2" class="heading"><hr/></td>
 				</tr>
 				<?php
-					$the_query = new WP_Query( array('meta_key' => 'form_id', 'meta_value' => $form_id, 'post_type' => 'donationtype') );
+					$the_query = new WP_Query( array('meta_key' => 'form_id', 'meta_value' => $attribs["form_id"], 'post_type' => 'donationtype') );
 					if($the_query->have_posts()){
 						echo '<tr><td class="title_cell">Donation Type</td><td class="field_cell">';
 						echo '<select name="donation_type">';
 						echo '<option value="Custom" data-amount="0">Custom</option>';
 						while($the_query -> have_posts()): $the_query -> the_post();?>
 							<option value="<?php echo the_title();?>" data-amount="<?php echo get_post_meta(get_the_ID(), "amount", true)?>"><?php echo the_title();?></option>
-						<?php endwhile; ?>
+						<?php endwhile; wp_reset_postdata();?>
 						</select>
 						<script type="text/javascript">
 							jQuery(document).ready(function(){
